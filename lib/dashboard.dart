@@ -23,8 +23,8 @@ class _DashboardPageState extends State<DashboardPage> {
   Stream<QuerySnapshot> expence;
   String month;
   String year;
-  double startBudget;
-  double spent;
+  double startBudget = 0;
+  double spent = 0;
   var startBudgetId;
   CrudMedthods crudObj = new CrudMedthods();
   FBApi fbApi = FBApi(user);
@@ -41,19 +41,24 @@ class _DashboardPageState extends State<DashboardPage> {
     _startBudget();
     _spentMoney();
 
-    // crudObj
-    //     .getMonthlyData(this.month, widget.user.uid)
-    //     .then((QuerySnapshot docs) {
-    //   if (docs.documents.isNotEmpty) {
-    //     setState(() {
-    //       startBudget = docs.documents[0].data['monthlyBudget'];
-    //       print('in setState : ' + startBudget.toString());
-    //     });
-    //     print('out setState : ' + startBudget.toString());
-    //   }
-    // });
+    crudObj
+        .getMonthlyData(this.month, widget.user.uid)
+        .then((QuerySnapshot docs) {
+      if (docs.documents.isNotEmpty) {
+        setState(() {
+          startBudget = docs.documents[0].data['monthlyBudget'];
+          print('in setState : ' + startBudget.toString());
+        });
+        print('out setState : ' + startBudget.toString());
+      }
+    });
 
-    // print('in initState : ' + startBudget.toString());
+    print('in initState : ' + startBudget.toString());
+
+    setState(() {
+     range =startBudget -spent;
+      
+    });
 
     super.initState();
   }
@@ -76,7 +81,7 @@ class _DashboardPageState extends State<DashboardPage> {
         setState(() {
           startBudget = docs.documents[0].data['monthlyBudget'];
           startBudgetId = docs.documents[0].documentID;
-          print(startBudget.toString());
+          // print(startBudget.toString());
         });
       } else {
         startBudget = 0.0;
@@ -97,7 +102,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 formatDate(data['date'], [yyyy]) ==
                     formatDate(DateTime.now(), [yyyy]))
             .fold(0, (sum, d) => sum + d.data['expenseValue']);
-        print(spent.toString());
+        // print(spent.toString());
       });
     });
   }
@@ -151,6 +156,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       ),
       body: Builder(
+        
           builder: (context) => Padding(
                 padding: EdgeInsets.all(0.0),
                 child: Column(
@@ -161,13 +167,11 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: Column(
                         children: <Widget>[
 
-                          Container(
-                            child: Text('Remaining Balance : ' + left.toString()),
+                          CardToSpend(
+                            startBudget: startBudget,
+                            spent: spent,
+                            left:left,
                           ),
-                          // CardToSpend(
-                          //   startBudget: startBudget,
-                          //   spent: spent,
-                          // ),
                           Row(
                             children: <Widget>[
                               Expanded(
